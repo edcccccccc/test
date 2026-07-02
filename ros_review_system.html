@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROS 机器人操作系统 - 复习系统</title>
+<style>
+:root {
+  --primary: #1a237e;
+  --primary-light: #534bae;
+  --accent: #00acc1;
+  --bg: #f5f6fa;
+  --card-bg: #ffffff;
+  --text: #2c3e50;
+  --text-light: #546e7a;
+  --border: #e0e0e0;
+  --success: #4caf50;
+  --danger: #ef5350;
+  --warning: #ff9800;
+  --sidebar-w: 280px;
+  --header-h: 60px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: linear-gradient(180deg, #0d1b3e 0%, #1a237e 100%);
+  color: #fff;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 3px 0 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  text-align: center;
+}
+.sidebar-header h1 {
+  font-size: 1.3em;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.sidebar-header .subtitle {
+  font-size: 0.75em;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.sidebar-nav a {
+  display: flex; align-items: center;
+  padding: 11px 24px;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 0.92em;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border-left-color: var(--accent);
+}
+.sidebar-nav a .ch-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+  margin-right: 12px;
+  font-size: 0.8em;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.sidebar-nav a.active .ch-num { background: var(--accent); color: #000; }
+.sidebar-nav .sub-links { padding-left: 40px; }
+.sidebar-nav .sub-links a {
+  font-size: 0.82em; padding: 7px 24px;
+}
+
+/* ===== Main Content ===== */
+.main-wrap {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 0;
+}
+
+/* Top Bar */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.topbar .breadcrumb { font-size: 0.9em; color: var(--text-light); }
+.topbar .breadcrumb span { color: var(--primary); font-weight: 600; }
+.topbar .stats {
+  display: flex; gap: 20px;
+  font-size: 0.85em; color: var(--text-light);
+}
+.topbar .stats strong { color: var(--primary); }
+
+/* Section */
+.section {
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: #fff;
+  padding: 32px 36px;
+  border-radius: 14px;
+  margin-bottom: 28px;
+  box-shadow: 0 6px 24px rgba(26,35,126,0.25);
+}
+.section-header h2 { font-size: 1.8em; margin-bottom: 8px; }
+.section-header .eng { opacity: 0.75; font-size: 0.9em; }
+
+/* Knowledge Cards */
+.knowledge-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+.knowledge-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.knowledge-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.knowledge-card h3 {
+  color: var(--primary);
+  font-size: 1.15em;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e8eaf6;
+  display: flex; align-items: center; gap: 10px;
+}
+.knowledge-card h3 .badge {
+  font-size: 0.7em;
+  background: var(--accent);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.knowledge-card ul { padding-left: 20px; }
+.knowledge-card li { margin: 6px 0; color: var(--text-light); }
+.knowledge-card .highlight-box {
+  background: #e8f5e9;
+  border-left: 4px solid var(--success);
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9em;
+}
+.knowledge-card .warn-box {
+  background: #fff3e0;
+  border-left: 4px solid var(--warning);
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9em;
+}
+.knowledge-card .info-box {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9em;
+}
+.knowledge-card pre {
+  background: #263238;
+  color: #aed581;
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 0.85em;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+}
+.knowledge-card code {
+  background: #eceff1; color: #c62828; padding: 2px 6px;
+  border-radius: 4px; font-size: 0.9em;
+}
+.knowledge-card pre code {
+  background: none; color: inherit; padding: 0; font-size: inherit;
+}
+
+/* Comparison Table */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.9em;
+}
+.compare-table th {
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 14px;
+  text-align: left;
+}
+.compare-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table tr:nth-child(even) { background: #f5f5f5; }
+.compare-table tr:hover { background: #e8eaf6; }
+
+/* Images */
+.img-container {
+  text-align: center;
+  margin: 16px 0;
+}
+.img-container img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+  border: 1px solid var(--border);
+}
+.img-container .img-caption {
+  font-size: 0.85em;
+  color: var(--text-light);
+  margin-top: 8px;
+}
+
+/* Quiz Section */
+.quiz-section {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
+  margin-top: 28px;
+}
+.quiz-section h3 {
+  color: var(--primary);
+  font-size: 1.3em;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.quiz-section h3 .icon { font-size: 1.5em; }
+.quiz-item {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.quiz-item.answered { border-color: var(--primary); background: #f5f6ff; }
+.quiz-item.correct { border-color: var(--success); background: #f1f8e9; }
+.quiz-item.wrong { border-color: var(--danger); background: #fef3f2; }
+.quiz-item .q-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 12px;
+}
+.quiz-item .q-num {
+  font-weight: 700; color: var(--primary); font-size: 0.9em;
+}
+.quiz-item .q-type {
+  font-size: 0.75em; padding: 2px 10px; border-radius: 12px;
+  font-weight: 600;
+}
+.q-type.single { background: #e3f2fd; color: #1565c0; }
+.q-type.multi { background: #fce4ec; color: #c62828; }
+.q-type.judge { background: #f3e5f5; color: #6a1b9a; }
+.quiz-item .q-stem { font-weight: 600; margin-bottom: 12px; font-size: 1.02em; }
+.quiz-item .options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-item .option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quiz-item .option:hover { border-color: var(--primary-light); background: #e8eaf6; }
+.quiz-item .option.selected { border-color: var(--primary); background: #c5cae9; font-weight: 600; }
+.quiz-item .option.correct-ans { border-color: var(--success) !important; background: #c8e6c9 !important; }
+.quiz-item .option.wrong-ans { border-color: var(--danger) !important; background: #ffcdd2 !important; }
+.quiz-item .option .letter {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: #e0e0e0; font-weight: 700; font-size: 0.85em;
+  flex-shrink: 0;
+}
+.quiz-item .option.selected .letter { background: var(--primary); color: #fff; }
+.quiz-item .option.correct-ans .letter { background: var(--success); color: #fff; }
+.quiz-item .option.wrong-ans .letter { background: var(--danger); color: #fff; }
+.quiz-item .explanation {
+  margin-top: 12px; padding: 12px 16px;
+  background: #fff8e1; border-left: 4px solid var(--warning);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.88em;
+  display: none;
+}
+.quiz-item.show-explanation .explanation { display: block; }
+.quiz-score {
+  text-align: center;
+  padding: 16px;
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600; font-size: 0.9em;
+  border: none; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+.btn-outline:hover { background: var(--primary); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { opacity: 0.9; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { opacity: 0.9; }
+.btn-sm { padding: 5px 14px; font-size: 0.8em; }
+
+.flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.mt-16 { margin-top: 16px; }
+.mb-16 { margin-bottom: 16px; }
+
+/* Progress bar */
+.progress-wrap {
+  background: #e0e0e0; border-radius: 10px; height: 8px;
+  margin: 8px 0 16px;
+}
+.progress-fill {
+  height: 100%; border-radius: 10px;
+  background: linear-gradient(90deg, var(--success), #8bc34a);
+  transition: width 0.3s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 0; transform: translateX(-100%); }
+  .sidebar.open { width: var(--sidebar-w); transform: translateX(0); }
+  .main-wrap { margin-left: 0; }
+  .section { padding: 16px; }
+}
+
+/* Search */
+.search-box {
+  position: relative; margin: 0 20px 12px;
+}
+.search-box input {
+  width: 100%; padding: 9px 14px 9px 36px;
+  border: none; border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  color: #fff; font-size: 0.85em;
+  outline: none;
+}
+.search-box input::placeholder { color: rgba(255,255,255,0.5); }
+.search-box svg {
+  position: absolute; left: 10px; top: 10px;
+  width: 16px; height: 16px; fill: rgba(255,255,255,0.4);
+}
+.search-nav {
+  display: none; align-items: center; justify-content: center; gap: 8px;
+  padding: 6px 10px; margin: 0 20px 8px;
+  font-size: 0.78em; color: rgba(255,255,255,0.7);
+}
+.search-nav.visible { display: flex; }
+.search-nav .nav-btn {
+  background: rgba(255,255,255,0.12); color: #fff; border: none;
+  padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9em;
+  transition: background 0.2s;
+}
+.search-nav .nav-btn:hover { background: var(--accent); color: #000; }
+.search-nav .nav-btn:disabled { opacity: 0.35; cursor: default; }
+.search-nav .match-info { min-width: 80px; text-align: center; }
+.highlight-match {
+  background: #ffeb3b; color: #000; padding: 0 2px; border-radius: 2px;
+}
+.current-match-card {
+  border-color: #ff9800 !important;
+  box-shadow: 0 0 0 4px rgba(255,152,0,0.35) !important;
+  opacity: 1 !important;
+}
+
+
+/* Print */
+@media print {
+  .sidebar, .topbar { display: none !important; }
+  .main-wrap { margin-left: 0 !important; }
+  .section { padding: 0 !important; }
+  .knowledge-card, .quiz-section { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>🤖 ROS 复习系统</h1>
+    <div class="subtitle">Robot Operating System</div>
+  </div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input type="text" placeholder="搜索知识点..." id="searchInput" oninput="searchContent()" onkeydown="if(event.key==='Enter')searchContent()">
+  </div>
+  <div class="search-nav" id="searchNav">
+    <button class="nav-btn" id="prevBtn" onclick="navigateMatch(-1)" disabled>◀ 上一处</button>
+    <span class="match-info" id="matchInfo"></span>
+    <button class="nav-btn" id="nextBtn" onclick="navigateMatch(1)" disabled>下一处 ▶</button>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <a href="#ch1" class="active" onclick="switchChapter('ch1', this)"><span class="ch-num">1</span> ROS简介</a>
+    <a href="#ch2" onclick="switchChapter('ch2', this)"><span class="ch-num">2</span> ROS文件系统</a>
+    <a href="#ch3" onclick="switchChapter('ch3', this)"><span class="ch-num">3</span> 通信架构（一）</a>
+    <a href="#ch4" onclick="switchChapter('ch4', this)"><span class="ch-num">4</span> 通信架构（二）</a>
+    <a href="#ch5" onclick="switchChapter('ch5', this)"><span class="ch-num">5</span> 常用工具</a>
+    <a href="#ch6" onclick="switchChapter('ch6', this)"><span class="ch-num">6</span> roscpp 客户端库</a>
+    <a href="#ch7" onclick="switchChapter('ch7', this)"><span class="ch-num">7</span> rospy 客户端库</a>
+    <a href="#ch8" onclick="switchChapter('ch8', this)"><span class="ch-num">8</span> TF 与 URDF</a>
+    <a href="#ch9" onclick="switchChapter('ch9', this)"><span class="ch-num">9</span> SLAM 建图</a>
+    <a href="#ch10" onclick="switchChapter('ch10', this)"><span class="ch-num">10</span> Navigation 导航</a>
+  </nav>
+</aside>
+
+<!-- ===== Main ===== -->
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="breadcrumb">📖 <span id="currentChapter">ROS简介</span></div>
+    <div class="stats">
+      <span>📝 章节: <strong>10</strong></span>
+      <span>✅ 测试题: <strong id="totalQuizCount">65+</strong></span>
+    </div>
+  </div>
+
+<div id="content">
+
+<!-- ==================== Chapter 1 ==================== -->
+<div class="section chapter" id="ch1">
+<div class="section-header">
+  <h2>第一章 ROS 简介</h2>
+  <div class="eng">Introduction to Robot Operating System</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>1.1 什么是 ROS <span class="badge">核心概念</span></h3>
+  <ul>
+    <li><strong>ROS (Robot Operating System)</strong> — 适用于机器人编程的<em>框架/中间件</em></li>
+    <li>并非 Windows/Mac 那样的传统操作系统，而是连接操作系统与 ROS 应用程序的<strong>运行时环境</strong></li>
+    <li>运行在 <strong>Linux (Ubuntu)</strong> 之上的中间件，提供通信架构</li>
+    <li>为原本松散的零部件提供统一的<strong>软件平台</strong></li>
+  </ul>
+  <div class="info-box">💡 <strong>关键词：</strong>框架、中间件、操作系统、运行时环境 — 都可以用来描述 ROS</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>1.2 ROS 特点</h3>
+  <ul>
+    <li><strong>分布式 · 点对点：</strong>机器人的进程可以分别运行，便于模块化修改和定制，提高容错能力</li>
+    <li><strong>多种语言支持：</strong>C++、Python、Lisp、C#、Java 等。采用语言中立的接口定义语言实现消息传送</li>
+    <li><strong>开源社区：</strong>庞大的 ROS WIKI (wiki.ros.org)，软件包达数千万个，遵从 BSD 协议，完全免费</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>1.3 ROS 优缺点</h3>
+  <table class="compare-table">
+    <tr><th>优点</th><th>缺点</th></tr>
+    <tr><td>提供框架、工具和功能</td><td>通信实时性能有限</td></tr>
+    <tr><td>方便移植</td><td>系统稳定性尚不满足工业级要求</td></tr>
+    <tr><td>庞大的用户群体</td><td>安全性上没有防护措施</td></tr>
+    <tr><td>免费开源</td><td>仅支持 Linux (Ubuntu)</td></tr>
+  </table>
+  <div class="warn-box">⚠️ ROS 更适合科研和开源用户，工业场景（如无人驾驶）需要做优化和定制。ROS 2.0 正在开发中。</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>1.4 ROS 发展历程</h3>
+  <ul>
+    <li>起源于<strong>斯坦福大学人工智能实验室</strong></li>
+    <li>ROS 版本按字母表顺序命名：Indigo → Jade → Kinetic → Lunar → Melodic...</li>
+    <li><strong>ROS Kinetic</strong> 最佳适配 <strong>Ubuntu 16.04</strong></li>
+    <li>ROS 不是 RTOS（实时操作系统），不适合 ms 级响应的任务</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>1.5 安装与测试 ROS</h3>
+  <ul>
+    <li>安装 ROS-Academy-for-Beginners 教学包</li>
+    <li>安装 RoboWare Studio 开发环境</li>
+    <li>二进制包安装命令示例：<code>sudo apt-get install ros-kinetic-packagename</code></li>
+  </ul>
+  <div class="highlight-box">
+    <strong>🟢 测试 ROS 经典步骤（小海龟测试）：</strong>
+    <pre><code># 终端1: 启动 ROS Master
+$ roscore
+
+# 终端2: 启动小海龟节点
+$ rosrun turtlesim turtlesim_node
+
+# 终端3: 启动键盘控制节点
+$ rosrun turtlesim turtle_teleop_key</code></pre>
+  </div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page7_img0.jpeg" alt="小海龟仿真">
+  <div class="img-caption">图1-1：小海龟 turtlesim 仿真测试 — 键盘控制小海龟移动并在屏幕上留下轨迹</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这是 ROS 安装后的经典测试——turtlesim 小海龟仿真器。启动 <code>roscore</code> 后，运行 <code>rosrun turtlesim turtlesim_node</code> 会显示小海龟画面，再运行 <code>rosrun turtlesim turtle_teleop_key</code> 后通过键盘方向键控制小海龟移动。如果小海龟正常移动并留下轨迹，说明 ROS 安装配置成功。这个测试验证了 ROS Master 启动、Node 运行、Topic 通信三大核心功能是否正常。
+  </div>
+</div>
+
+</div>
+
+<!-- Unit Test 1 -->
+<div class="quiz-section" id="quiz1">
+  <h3><span class="icon">📝</span> 单元测试一（第1章 · 共8题）</h3>
+  <div class="progress-wrap"><div class="progress-fill" id="progress1" style="width:0%"></div></div>
+  <div id="quiz1Content"></div>
+  <div class="flex-row mt-16">
+    <button class="btn btn-primary" onclick="checkQuiz('quiz1')">✅ 提交答案</button>
+    <button class="btn btn-outline" onclick="resetQuiz('quiz1')">🔄 重新作答</button>
+    <span id="score1" class="quiz-score" style="display:none"></span>
+  </div>
+</div>
+</div>
+
+<!-- ==================== Chapter 2 ==================== -->
+<div class="section chapter" id="ch2" style="display:none">
+<div class="section-header">
+  <h2>第二章 ROS 文件系统</h2>
+  <div class="eng">ROS File System & Catkin Build System</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>2.1 Catkin 编译系统 <span class="badge">核心</span></h3>
+  <ul>
+    <li>ROS 对 CMake 进行了扩展 → <strong>Catkin 编译系统</strong></li>
+    <li>早期 ROS 编译系统是 rosbuild，已被逐步淘汰</li>
+    <li>Groovy 版本后，Catkin 正式投入使用</li>
+    <li><strong>优点：</strong>操作简化、工作效率高、可移植性好、支持交叉编译</li>
+    <li>ROS2 使用 <strong>Ament</strong> 编译系统</li>
+  </ul>
+  <div class="info-box">💡 <strong>演进路线：</strong>gcc/g++ → Makefile → CMake → Catkin（ROS 1.0）/ Ament（ROS 2.0）</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>2.2 Catkin 工作空间结构</h3>
+  <pre><code>catkin_ws/           # 工作空间根目录
+├── src/             # 源代码目录（package 放这里）
+├── build/           # 编译中间文件
+└── devel/           # 编译生成的可执行文件</code></pre>
+  <ul>
+    <li>创建命令：<code>mkdir -p ~/catkin_ws/src</code> + <code>catkin_make</code></li>
+    <li>编译命令：<code>catkin_make</code>（在工作空间根目录执行）</li>
+    <li>可执行文件默认生成在 <strong>devel/</strong> 路径</li>
+    <li>Package 放在 <strong>src/</strong> 目录下</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>2.3 Package 软件包结构</h3>
+  <ul>
+    <li><strong>必须包含两个文件：</strong><code>CMakeLists.txt</code> 和 <code>package.xml</code></li>
+    <li><code>CMakeLists.txt</code>：编译规则文件</li>
+    <li><code>package.xml</code>：包信息描述文件</li>
+  </ul>
+  <pre><code>your_package/
+├── CMakeLists.txt    # 必须！编译配置
+├── package.xml       # 必须！包信息
+├── src/              # C++ 源码
+├── include/          # 头文件
+├── script/           # Python 脚本
+├── launch/           # launch 文件
+├── msg/              # 自定义消息
+├── srv/              # 自定义服务
+├── action/           # 自定义动作
+├── param/            # yaml 参数文件
+└── urdf/             # 机器人模型文件</code></pre>
+</div>
+
+<div class="knowledge-card">
+  <h3>2.4 CMakeLists.txt 关键指令</h3>
+  <ul>
+    <li><code>add_executable()</code> — 添加可执行文件</li>
+    <li><code>target_link_libraries()</code> — 将库文件链接到目标文件</li>
+    <li><code>include_directories()</code> — 引入头文件的搜索路径</li>
+  </ul>
+  <div class="warn-box">⚠️ <strong>Catkin 独有的 CMake 扩展指令：</strong>add_action_files()、add_message_files()、add_service_files()、generate_messages()</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>2.5 Metapackage 软件元包</h3>
+  <ul>
+    <li><strong>前身：</strong>Stack（功能包集），Hydro 版本后改用 Metapackage</li>
+    <li><strong>作用：</strong>将功能接近、相互依赖的软件包放到一起</li>
+    <li><code>CMakeLists.txt</code> 中需加入 <code>catkin_metapackage()</code> 宏</li>
+    <li><code>package.xml</code> 中用 <code>&lt;metapackage/&gt;</code> 标签声明</li>
+  </ul>
+  <table class="compare-table">
+    <tr><th>Metapackage</th><th>描述</th></tr>
+    <tr><td>navigation</td><td>导航相关的功能包集</td></tr>
+    <tr><td>moveit</td><td>运动规划（机械臂）功能包集</td></tr>
+    <tr><td>image_pipeline</td><td>图像获取、处理功能包集</td></tr>
+    <tr><td>vision_opencv</td><td>ROS 与 OpenCV 交互功能包集</td></tr>
+    <tr><td>turtlebot</td><td>Turtlebot 机器人相关功能包集</td></tr>
+  </table>
+</div>
+
+<div class="knowledge-card">
+  <h3>2.6 其他常见文件类型</h3>
+  <ul>
+    <li><strong>.launch / .xml：</strong>ROS 程序启动文件（通常放 launch/ 路径）</li>
+    <li><strong>.msg / .srv / .action：</strong>自定义消息/服务/动作文件</li>
+    <li><strong>.urdf / .xacro：</strong>机器人模型描述文件</li>
+    <li><strong>.yaml：</strong>参数配置文件（通常放 param/ 路径）</li>
+    <li><strong>.dae / .stl：</strong>3D 模型文件（可从 SolidWorks 导出）</li>
+    <li><strong>.rviz：</strong>RViz 窗口配置文件</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>2.7 常用命令</h3>
+  <pre><code>roscd pkg_name    # 跳转到软件包路径
+rosls pkg_name    # 列出软件包内容</code></pre>
+</div>
+
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page11_img0.jpeg" alt="Catkin编译系统">
+  <div class="img-caption">图2-1：Catkin 编译系统工作流程 — CMake 对 Makefile 的生成关系及 Catkin 的定位</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这张图展示了编译系统的演进层次：最底层是 GCC/G++ 编译器，往上是 Makefile 构建工具，再往上是 CMake（跨平台构建生成器），而 <strong>Catkin 是 ROS 对 CMake 的扩展</strong>。Catkin 添加了 <code>add_message_files()</code>、<code>add_service_files()</code>、<code>add_action_files()</code>、<code>generate_messages()</code> 等 ROS 专用指令。理解这个层次关系有助于掌握 ROS 的编译流程。
+  </div>
+</div>
+
+<div class="quiz-section" id="quiz2">
+  <h3><span class="icon">📝</span> 单元测试二（第2章 · 共8题）</h3>
+  <div class="progress-wrap"><div class="progress-fill" id="progress2" style="width:0%"></div></div>
+  <div id="quiz2Content"></div>
+  <div class="flex-row mt-16">
+    <button class="btn btn-primary" onclick="checkQuiz('quiz2')">✅ 提交答案</button>
+    <button class="btn btn-outline" onclick="resetQuiz('quiz2')">🔄 重新作答</button>
+    <span id="score2" class="quiz-score" style="display:none"></span>
+  </div>
+</div>
+</div>
+
+<!-- ==================== Chapter 3 ==================== -->
+<div class="section chapter" id="ch3" style="display:none">
+<div class="section-header">
+  <h2>第三章 ROS 通信架构（一）</h2>
+  <div class="eng">Communication Architecture I — Node, Master, Launch, Topic, Message</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>3.1 Node（节点）<span class="badge">核心概念</span></h3>
+  <ul>
+    <li><strong>Node 是 ROS 中最小的进程单元</strong></li>
+    <li>可执行文件运行后成为进程(process)，在 ROS 中叫做节点(node)</li>
+    <li>通常一个 node 负责机器人某一个单独的功能（模块化分工）</li>
+    <li>采用分布式方式，把不同功能分配到不同 node</li>
+  </ul>
+  <div class="highlight-box">💡 <strong>举例：</strong>底盘控制 node、摄像头驱动 node、激光雷达 node、路径规划 node — 各司其职</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>3.2 Master（节点管理器）</h3>
+  <ul>
+    <li><strong>Master 是整个网络通信架构的管理中心</strong></li>
+    <li>Node 首先在 Master 处进行注册</li>
+    <li>Node 之间的通信由 Master 进行"牵线"，然后点对点通信</li>
+    <li><strong>启动 ROS 的第一步：</strong>启动 Master → <code>$ roscore</code></li>
+    <li><code>roscore</code> 同时启动 rosout（日志输出）和 parameter server（参数服务器）</li>
+  </ul>
+  <div class="warn-box">⚠️ <strong>重要：</strong>Node 必须先于 ROS Master 启动？❌ 错误！必须先启动 Master，Node 才能注册和通信。</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>3.3 启动命令</h3>
+  <pre><code>roscore                      # 启动 Master + rosout + parameter server
+rosrun pkg_name node_name     # 启动单个节点
+rosrun [--prefix cmd] [--debug] pkg_name node_name [ARGS]  # 详细用法
+
+# rosnode 常用命令
+rosnode list                  # 查看所有运行中的节点
+rosnode info node_name        # 查看节点信息</code></pre>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page19_img0.jpeg" alt="Node与Master关系图">
+  <div class="img-caption">图3-1：Master 与 Node 之间的注册与通信关系</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这张图展示了 ROS 通信架构的启动流程。首先通过 <code>roscore</code> 启动 Master（节点管理器），同时启动 rosout（日志节点）和 Parameter Server（参数服务器）。然后各 Node 启动时向 Master 注册，Master 负责"牵线搭桥"让 Node 之间建立<strong>点对点</strong>的直接通信。图中还展示了 Node 之间的消息发布/订阅关系——Node 间通过 Topic 进行数据交换。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>3.4 Launch 文件</h3>
+  <ul>
+    <li><strong>作用：</strong>一次性启动 Master 和多个 node，减少重复操作</li>
+    <li><strong>命令：</strong><code>roslaunch pkg_name file_name.launch</code></li>
+    <li>roslaunch 会自动检测 roscore 是否运行，未运行则自动启动</li>
+    <li>Launch 文件遵循 XML 格式规范</li>
+  </ul>
+  <table class="compare-table">
+    <tr><th>标签</th><th>作用</th></tr>
+    <tr><td>&lt;launch&gt;</td><td>根标签</td></tr>
+    <tr><td>&lt;node&gt;</td><td>需要启动的 node 及其参数</td></tr>
+    <tr><td>&lt;include&gt;</td><td>包含其他 launch 文件</td></tr>
+    <tr><td>&lt;machine&gt;</td><td>指定运行的机器</td></tr>
+    <tr><td>&lt;param&gt;</td><td>定义参数到参数服务器</td></tr>
+    <tr><td>&lt;rosparam&gt;</td><td>启动 yaml 文件参数</td></tr>
+    <tr><td>&lt;arg&gt;</td><td>定义变量</td></tr>
+    <tr><td>&lt;remap&gt;</td><td>设定参数映射</td></tr>
+    <tr><td>&lt;group&gt;</td><td>设定命名空间</td></tr>
+  </table>
+  <div class="info-box">💡 <strong>最小 launch 示例：</strong><code>&lt;launch&gt;&lt;node name="talker" pkg="rospy_tutorials" type="talker" /&gt;&lt;/launch&gt;</code></div>
+</div>
+
+<div class="knowledge-card">
+  <h3>3.5 Topic（话题通信）<span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>Topic 是 ROS 中最常用的通信方式</strong></li>
+    <li><strong>点对点、单向、异步通信</strong></li>
+    <li>Publisher（发布者）→ Topic → Subscriber（订阅者）</li>
+    <li>双方先在 Master 注册 → Publisher 发布 topic → Subscriber 订阅 topic</li>
+    <li>Subscriber 通过<strong>回调函数 (Callback)</strong> 处理接收到的消息</li>
+    <li><strong>一个 topic 可有多个 publisher 和多个 subscriber</strong></li>
+  </ul>
+  <div class="highlight-box">
+    <strong>🟢 Topic 三个要点：</strong><br>
+    1️⃣ 异步通信 — publish() 发送后立即返回，不等反馈<br>
+    2️⃣ Subscriber 通过回调函数处理消息<br>
+    3️⃣ 多对多关系 — 多个发布者和多个订阅者同时存在
+  </div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page23_img0.jpeg" alt="Topic通信示意图">
+  <div class="img-caption">图3-2：Topic 通信机制 — Publish-Subscribe 异步通信模型</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这是 ROS 最核心的 Topic 通信流程示意图。图中展示了完整的通信过程：① Publisher（发布者）向 Master 注册并声明自己将发布的 Topic；② Subscriber（订阅者）向 Master 注册并声明自己想要订阅的 Topic；③ Master 匹配双方后，Publisher 与 Subscriber 建立<strong>点对点直连</strong>，开始数据传输。注意整个过程是<strong>单向异步</strong>的 — Publisher 发布消息后立即返回，不等待 Subscriber 的反馈。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>3.6 Message（消息格式）</h3>
+  <ul>
+    <li><strong>Message = Topic 内容的数据类型/格式标准</strong></li>
+    <li>msg 文件相当于"类的定义"，每次发布的内容相当于"对象"</li>
+    <li>基本类型：bool, int8/16/32/64, uint, float32/64, string, time, duration, header, array[]</li>
+    <li><strong>常用 sensor_msgs/Image</strong> 包含：header, height, width, encoding, data 等字段</li>
+  </ul>
+  <div class="info-box">💡 <strong>rosmsg 命令：</strong><code>rosmsg list</code> 查看所有消息类型，<code>rosmsg show type_name</code> 查看具体格式</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>3.7 常用命令速查</h3>
+  <pre><code>rostopic list              # 查看当前活跃的 Topic
+rostopic echo /topic_name  # 查看 Topic 发布的内容
+rostopic info /topic_name  # 查看 Topic 详细信息</code></pre>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page24_img0.jpeg" alt="分布式Topic通信">
+  <div class="img-caption">图3-3：分布式 Topic 通信 — 多个节点可以同时订阅同一个 Topic</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>此图以摄像头画面发布与处理为例展示了 Topic 的分布式特性。摄像头节点（node1）作为 Publisher 发布 <code>/camera_rgb</code> 话题；图像处理节点（node2）订阅该话题进行处理；用户还可以在另一台电脑上启动图像显示节点来订阅同一话题查看画面。<strong>核心要点：</strong>一个 Topic 可以被多个节点同时发布，也可以被多个节点同时接收——体现了分布式系统的<strong>扩展性好、软件复用率高</strong>的优势。
+  </div>
+</div>
+
+</div>
+
+<div class="quiz-section" id="quiz3">
+  <h3><span class="icon">📝</span> 单元测试三（第3章 · 共7题）</h3>
+  <div class="progress-wrap"><div class="progress-fill" id="progress3" style="width:0%"></div></div>
+  <div id="quiz3Content"></div>
+  <div class="flex-row mt-16">
+    <button class="btn btn-primary" onclick="checkQuiz('quiz3')">✅ 提交答案</button>
+    <button class="btn btn-outline" onclick="resetQuiz('quiz3')">🔄 重新作答</button>
+    <span id="score3" class="quiz-score" style="display:none"></span>
+  </div>
+</div>
+</div>
+
+<!-- ==================== Chapter 4 ==================== -->
+<div class="section chapter" id="ch4" style="display:none">
+<div class="section-header">
+  <h2>第四章 ROS 通信架构（二）</h2>
+  <div class="eng">Communication Architecture II — Service, Srv, Parameter Server, Actionlib</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>4.1 Service（服务通信）<span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>双向同步通信</strong>（请求-应答模式 Request-Reply）</li>
+    <li>Client 发送 Request → Server 处理后返回 Reply</li>
+    <li>Client 等待期间处于阻塞状态（同步通信）</li>
+    <li>适用于<strong>偶尔调用的功能/具体任务</strong>（如开关传感器、拍照、逆解计算）</li>
+    <li>一个 Service 只能由一个 Server 提供（多对一关系）</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>4.2 Topic VS Service 对比 <span class="badge">必考</span></h3>
+  <table class="compare-table">
+    <tr><th>特性</th><th>Topic</th><th>Service</th></tr>
+    <tr><td>通信方式</td><td>异步通信</td><td>同步通信</td></tr>
+    <tr><td>实现原理</td><td>TCP/IP</td><td>TCP/IP</td></tr>
+    <tr><td>通信模型</td><td>Publish-Subscribe</td><td>Request-Reply</td></tr>
+    <tr><td>映射关系</td><td>多对多</td><td>多对一</td></tr>
+    <tr><td>特点</td><td>回调(Callback)处理</td><td>RPC 远程过程调用</td></tr>
+    <tr><td>应用场景</td><td>连续、高频数据发布</td><td>偶尔使用的功能/具体任务</td></tr>
+    <tr><td>举例</td><td>激光雷达、里程计</td><td>开关传感器、拍照、逆解计算</td></tr>
+  </table>
+</div>
+
+<div class="knowledge-card">
+  <h3>4.3 Srv（服务格式）</h3>
+  <ul>
+    <li>srv 文件描述服务的数据类型，<strong>两段式</strong>（request + reply，中间用 <code>---</code> 隔开）</li>
+    <li>srv 可以嵌套 msg，但不能嵌套 srv</li>
+  </ul>
+  <pre><code># DetectHuman.srv 示例
+bool start_detect        # 请求部分
+---
+my_pkg/HumanPose[] pose_data   # 应答部分</code></pre>
+  <div class="info-box">💡 <strong>常用命令：</strong><code>rosservice type /service_name</code> 查看类型，<code>rossrv show type_name</code> 查看具体格式</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>4.4 Parameter Server（参数服务器）</h3>
+  <ul>
+    <li><strong>特殊的"通信方式"</strong> — 节点存储参数的地方，全局共享</li>
+    <li>维护着一个<strong>数据字典</strong>（键值对 key-value），每个 key 唯一</li>
+    <li>更加<strong>静态</strong>，适合不常变化的参数和配置</li>
+    <li><strong>三种维护方式：</strong>① 命令行 ② launch 文件内读写 ③ node 源码</li>
+  </ul>
+  <div class="warn-box">⚠️ 添加 param 不能通过 <code>rosnode</code> 命令，应该用 <code>rosparam set</code> 命令！</div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page31_img0.jpeg" alt="参数服务器字典">
+  <div class="img-caption">图4-2：参数服务器 — 键值对 (Key-Value) 字典结构</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>参数服务器维护着一个<strong>数据字典</strong>，每个 Key（键）都是唯一的，对应一个 Value（值）。就像查字典一样——Key 如同"部首"，唯一的 Key 对应唯一的 Value。参数服务器更加<strong>静态</strong>，适合存储不常变化的参数和配置。维护方式有三种：① 命令行（<code>rosparam set</code>）② launch 文件内读写 ③ node 源码中通过 API 操作。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>4.5 Actionlib（动作库）<span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>弥补 Service 不足：</strong>适用于执行<strong>长时间任务</strong></li>
+    <li>Client-Server 模式，双向通信</li>
+    <li>通信过程可<strong>随时查看进度</strong>、<strong>终止请求</strong></li>
+    <li>Client 可发送：目标指令(goal)、取消指令(cancel)</li>
+    <li>Server 可反馈：实时状态、结果信息、反馈信息</li>
+  </ul>
+  <div class="highlight-box">
+    <strong>🟢 Action 文件格式（三段式）：</strong>
+    <pre><code># Goal (目标)
+uint32 dishwasher_id
+---
+# Result (结果)
+uint32 total_dishes_cleaned
+---
+# Feedback (反馈)
+float32 percent_complete</code></pre>
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>4.6 四种通信方式总结</h3>
+  <table class="compare-table">
+    <tr><th>通信方式</th><th>特点</th><th>适用场景</th></tr>
+    <tr><td>Topic</td><td>单向、异步、多对多</td><td>连续高频数据（传感器）</td></tr>
+    <tr><td>Service</td><td>双向、同步、多对一</td><td>偶尔调用的任务（逆解）</td></tr>
+    <tr><td>Parameter Server</td><td>静态、全局共享字典</td><td>参数配置</td></tr>
+    <tr><td>Actionlib</td><td>双向、可反馈/可取消</td><td>长时间任务（导航、抓取）</td></tr>
+  </table>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page32_img0.jpeg" alt="Action通信原理">
+  <div class="img-caption">图4-3：Actionlib 通信原理 — Client-Server 双向通信模式</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>Actionlib 采用 Client-Server 模式，弥补了 Service 在长时间任务中的不足。图中展示了通信流程：① Client 向 Server 发送<strong>目标指令 (Goal)</strong>；② Server 在处理过程中持续向 Client 发送<strong>实时反馈 (Feedback)</strong>（如完成百分比）；③ 任务完成后 Server 发送<strong>结果 (Result)</strong>；④ Client 可随时发送<strong>取消指令 (Cancel)</strong> 中止任务。这使得 Actionlib 特别适合导航、抓取等需要实时监控进度的长时任务。
+  </div>
+</div>
+
+</div>
+
+<div class="quiz-section" id="quiz4">
+  <h3><span class="icon">📝</span> 单元测试四（第4章 · 共6题）</h3>
+  <div class="progress-wrap"><div class="progress-fill" id="progress4" style="width:0%"></div></div>
+  <div id="quiz4Content"></div>
+  <div class="flex-row mt-16">
+    <button class="btn btn-primary" onclick="checkQuiz('quiz4')">✅ 提交答案</button>
+    <button class="btn btn-outline" onclick="resetQuiz('quiz4')">🔄 重新作答</button>
+    <span id="score4" class="quiz-score" style="display:none"></span>
+  </div>
+</div>
+</div>
+
+<!-- ==================== Chapter 5 ==================== -->
+<div class="section chapter" id="ch5" style="display:none">
+<div class="section-header">
+  <h2>第五章 常用工具</h2>
+  <div class="eng">Common ROS Tools — Gazebo, RViz, rqt, rosbag, rosbridge, moveit!</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>5.1 六大常用工具概览</h3>
+  <table class="compare-table">
+    <tr><th>工具</th><th>类型</th><th>主要功能</th></tr>
+    <tr><td><strong>Gazebo</strong></td><td>仿真工具</td><td>最常用的 ROS 仿真工具，物理仿真效果好</td></tr>
+    <tr><td><strong>RViz</strong></td><td>可视化工具</td><td>将接收到的信息图形化呈现（激光、点云、模型、轨迹等）</td></tr>
+    <tr><td><strong>rqt</strong></td><td>数据流可视化</td><td>直观查看消息通信架构和流通路径</td></tr>
+    <tr><td><strong>rosbag</strong></td><td>数据记录/回放</td><td>记录和回放 Topic（.bag 文件），不能记录 Service</td></tr>
+    <tr><td><strong>rosbridge</strong></td><td>通信桥梁</td><td>沟通 ROS 和外界（如 Web 端）</td></tr>
+    <tr><td><strong>moveit!</strong></td><td>运动规划</td><td>应用最广泛的开源操作软件（机械臂运动规划）</td></tr>
+  </table>
+</div>
+
+<div class="knowledge-card">
+  <h3>5.2 Gazebo — 仿真工具</h3>
+  <ul>
+    <li><strong>ROS 中最常用、仿真效果最好的工具</strong></li>
+    <li>支持物理引擎仿真（重力、碰撞等）</li>
+    <li>可与 ROS 节点无缝通信</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>5.3 RViz — 可视化工具</h3>
+  <ul>
+    <li>可图形化显示：<strong>激光 LaserScan、点云 PointCloud、机器人模型 RobotModel、轨迹 Path</strong></li>
+    <li>配置文件以 .rviz 格式保存</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>5.4 rqt — 数据流可视化</h3>
+  <ul>
+    <li><code>rqt_graph</code> — 查看<strong>计算图</strong>（节点间消息流向）</li>
+    <li>椭圆代表节点，方框代表 topic</li>
+    <li>可以看到所有运行的节点和它们之间的通信关系</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>5.5 rosbag — 数据记录与回放</h3>
+  <ul>
+    <li><strong>可以记录和回放 Topic</strong></li>
+    <li><strong>不能记录和回放 Service</strong> ❌</li>
+    <li>结果保存为 .bag 文件</li>
+    <li>可以指定记录某一个或多个 topic</li>
+  </ul>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page39_img0.jpeg" alt="rqt_graph计算图">
+  <div class="img-caption">图5-1：rqt_graph 计算图 — 节点间的消息流向可视化</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>rqt_graph 是 rqt 工具集中最常用的插件之一。图中的<strong>椭圆代表节点 (Node)</strong>，<strong>方框代表 Topic</strong>，箭头表示消息的流向（Publisher → Topic → Subscriber）。通过计算图可以直观地看到：① 当前运行了哪些节点；② 节点之间通过哪些 Topic 通信；③ 消息的数据流向。这是调试 ROS 系统时的首选工具。
+  </div>
+</div>
+
+</div>
+
+<div class="quiz-section" id="quiz5">
+  <h3><span class="icon">📝</span> 单元测试五（第5章 · 共4题）</h3>
+  <div class="progress-wrap"><div class="progress-fill" id="progress5" style="width:0%"></div></div>
+  <div id="quiz5Content"></div>
+  <div class="flex-row mt-16">
+    <button class="btn btn-primary" onclick="checkQuiz('quiz5')">✅ 提交答案</button>
+    <button class="btn btn-outline" onclick="resetQuiz('quiz5')">🔄 重新作答</button>
+    <span id="score5" class="quiz-score" style="display:none"></span>
+  </div>
+</div>
+</div>
+
+<!-- ==================== Chapter 6 ==================== -->
+<div class="section chapter" id="ch6" style="display:none">
+<div class="section-header">
+  <h2>第六章 roscpp — C++ 客户端库</h2>
+  <div class="eng">ROS C++ Client Library</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>6.1 Client Library 概念 <span class="badge">核心</span></h3>
+  <ul>
+    <li><strong>客户端库 (Client Library)</strong> = ROS 提供给不同语言的编程接口</li>
+    <li><strong>roscpp</strong> = C++ 语言的 ROS 接口</li>
+    <li><strong>rospy</strong> = Python 语言的 ROS 接口</li>
+    <li>直接调用库提供的函数，即可实现 Topic、Service 等通信功能</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>6.2 NodeHandle</h3>
+  <ul>
+    <li>C++ 中使用 <code>ros::NodeHandle</code> 来管理节点</li>
+    <li>通过 NodeHandle 创建 Publisher、Subscriber 等</li>
+    <li>NodeHandle 是 roscpp 的核心类</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>6.3 回调函数与 spin() 方法 <span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>回调函数 (Callback)：</strong>提前定义的处理函数，当有消息到达时触发</li>
+    <li>Subscriber 把消息放入<strong>队列</strong>中，spin 函数处理队首消息</li>
+  </ul>
+  <table class="compare-table">
+    <tr><th>spin 方法</th><th>阻塞</th><th>线程</th></tr>
+    <tr><td>ros::spin()</td><td>阻塞</td><td>单线程</td></tr>
+    <tr><td>ros::spinOnce()</td><td>非阻塞</td><td>单线程</td></tr>
+    <tr><td>ros::MultiThreadedSpin()</td><td>阻塞</td><td>多线程</td></tr>
+    <tr><td>ros::AsyncMultiThreadedSpin()</td><td>非阻塞</td><td>多线程</td></tr>
+  </table>
+  <div class="highlight-box">💡 最常用的是 <code>ros::spin()</code>（阻塞单线程）和 <code>ros::spinOnce()</code>（非阻塞单线程）</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>6.4 roscpp 主要功能</h3>
+  <ul>
+    <li>节点初始化、关闭与 NodeHandle</li>
+    <li>Topic in roscpp — Publisher / Subscriber</li>
+    <li>Service in roscpp — ServiceServer / ServiceClient</li>
+    <li>Param in roscpp — getParam / setParam</li>
+    <li>时钟 (Time) 和日志 (Log) 功能</li>
+  </ul>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page38_img0.jpeg" alt="回调函数与spin">
+  <div class="img-caption">图6-1：回调函数 (Callback) 与 spin 消息处理机制 — 消息队列的工作原理</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这张图展示了 roscpp 中消息处理的核心机制。Subscriber 接收到消息后，首先将消息放入一个<strong>队列 (Queue)</strong> 中（队列长度在构建 Subscriber 时设定）。当调用 <code>spin()</code> 或 <code>spinOnce()</code> 时，程序从队首取出消息并执行<strong>回调函数 (Callback)</strong>——即提前定义好的处理函数。spin() 是阻塞式的（一直循环处理），spinOnce() 是非阻塞的（处理完队首就返回）。理解此机制是编写 ROS 节点的关键。
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ==================== Chapter 7 ==================== -->
+<div class="section chapter" id="ch7" style="display:none">
+<div class="section-header">
+  <h2>第七章 rospy — Python 客户端库</h2>
+  <div class="eng">ROS Python Client Library</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>7.1 rospy 简介</h3>
+  <ul>
+    <li><strong>rospy = Python 版本的 ROS 客户端库</strong></li>
+    <li>位于 <code>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy</code></li>
+    <li>包含 node、topic、service、param、time 相关操作</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>7.2 rospy VS roscpp</h3>
+  <table class="compare-table">
+    <tr><th>roscpp (C++)</th><th>rospy (Python)</th></tr>
+    <tr><td>有 NodeHandle 类</td><td>无 NodeHandle，操作封装为函数/类</td></tr>
+    <tr><td>执行效率高</td><td>开发效率高，执行效率较低</td></tr>
+    <tr><td>适合算法开发 (SLAM、路径规划、视觉)</td><td>适合快速开发和工具编写</td></tr>
+    <tr><td>接口命名规范</td><td>部分接口命名与 roscpp 不一致</td></tr>
+  </table>
+  <div class="info-box">💡 ROS 中绝大多数基本指令（rostopic, roslaunch 等）都是用 Python 开发的</div>
+</div>
+
+<div class="knowledge-card">
+  <h3>7.3 Python 代码组织方式</h3>
+  <ul>
+    <li><strong>单独脚本：</strong>简单程序，Python 文件放在 <code>script/</code> 下</li>
+    <li><strong>Python 模块：</strong>体量较大的程序，使用模块化组织</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<!-- ==================== Chapter 8 ==================== -->
+<div class="section chapter" id="ch8" style="display:none">
+<div class="section-header">
+  <h2>第八章 TF 与 URDF</h2>
+  <div class="eng">Coordinate Transforms & Unified Robot Description Format</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>8.1 TF (TransForm) 坐标变换 <span class="badge">核心概念</span></h3>
+  <ul>
+    <li><strong>TF = 坐标变换</strong>（在不同坐标系之间转换点、矢量等）</li>
+    <li><strong>本质是树状的数据结构 → tf tree</strong></li>
+    <li>tf 也是一个 Topic：<code>/tf</code>，消息保存了 tf tree 的数据结构</li>
+    <li>tf 也是一个 Package，包含可视化、调试等工具</li>
+  </ul>
+  <div class="highlight-box">
+    💡 <strong>核心作用：</strong>维护机器人各部件之间的坐标转换关系。例如：物体相对于头部传感器的坐标，需要转换为相对于手臂的坐标才能执行抓取。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>8.2 TF 树结构</h3>
+  <ul>
+    <li>每个 <strong>link</strong>（连杆）对应一个 <strong>frame</strong>（坐标系）</li>
+    <li>每两个 frame 之间有一个 <strong>broadcaster</strong>（Node 发布者）维护连通</li>
+    <li><strong>tf tree 不能有任何断层！</strong>两个 frame 之间必须联通</li>
+    <li>如果缺少 Node 发布消息维护，两个 frame 之间连接会断开 → 系统报错</li>
+  </ul>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page43_img0.jpeg" alt="TF树结构">
+  <div class="img-caption">图8-1：PR2 机器人模型中的众多 frame（坐标系）— 每个 link 对应一个 frame</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这张图展示了 PR2 机器人上密密麻麻的坐标系 (frame)。机器人的每个部件 (link) 上都绑定着一个 frame，例如头部摄像头有一个 frame，手臂关节有各自的 frame。当机器人"眼睛"（头部传感器）看到物体的坐标，机械臂要抓取时需要知道物体相对于手臂的坐标——这就需要 <strong>TF (坐标变换)</strong> 在不同 frame 之间进行转换。TF 维护着所有 frame 之间的树状关系。
+  </div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page44_img0.jpeg" alt="robot_sim_demo tf tree">
+  <div class="img-caption">图8-2：robot_sim_demo 运行时的 TF Tree 结构 — 树状坐标系关系</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这是 robot_sim_demo 仿真运行时的实际 TF 树。每个圆圈代表一个 frame（坐标系），对应机器人上的一个 link。箭头表示坐标系之间的父子关系。<strong>关键要点：</strong>① 任意两个 frame 之间必须联通——TF 树不能有断层，否则系统报错；② 每两个 frame 之间都有一个 <strong>broadcaster</strong>（本质是一个 Publisher Node）持续发布坐标变换消息 (TransformStamped.msg) 来维持连通；③ 如果 broadcaster 停止发布，两个 frame 之间的连接就会断开。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>8.3 TransformStamped.msg 消息格式</h3>
+  <pre><code>std_msgs/Header header
+    uint32 seq
+    time stamp
+    string frame_id          # 父坐标系名称
+string child_frame_id        # 子坐标系名称
+geometry_msgs/Transform transform
+    geometry_msgs/Vector3 translation   # 平移 (x, y, z)
+    geometry_msgs/Quaternion rotation   # 旋转 (x, y, z, w) 四元数</code></pre>
+</div>
+
+<div class="knowledge-card">
+  <h3>8.4 URDF 统一机器人描述格式 <span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>URDF (Unified Robot Description Format)</strong> — 使用 XML 格式描述机器人</li>
+    <li>两个 link 之间需要 <strong>joint</strong> 来连接</li>
+    <li>用 <code>&lt;origin&gt;</code> 描述相对位置和朝向关系</li>
+    <li>用 <code>&lt;geometry&gt;</code> 描述形状，<code>&lt;color&gt;</code> 描述颜色</li>
+    <li>显示 URDF 需要 <code>joint_state_publisher</code> 和 <code>robot_state_publisher</code> 两个节点</li>
+  </ul>
+  <div class="info-box">💡 检查 URDF 语法：<code>sudo apt-get install liburdfdom-tools</code> → <code>check_urdf my_robot.urdf</code></div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page48_img0.jpeg" alt="URDF link与joint">
+  <div class="img-caption">图8-3：URDF 中 link（连杆）与 joint（关节）的关系 — base_link 与 right_wheel 通过 joint 连接</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>URDF 用 XML 格式描述机器人模型。图中以小车为例展示了核心概念：<strong>link</strong>（连杆）是机器人的刚性部件（如车身 base_link、右轮 right_wheel），<strong>joint</strong>（关节）连接两个 link 并定义它们之间的运动关系（如旋转、平移）。每个 joint 通过 <code>&lt;origin&gt;</code> 标签定义相对位置和朝向，通过 <code>&lt;geometry&gt;</code> 定义形状，通过 <code>&lt;color&gt;</code> 定义外观颜色。
+  </div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page52_img0.jpeg" alt="URDF小车模型">
+  <div class="img-caption">图8-4：URDF 小车模型在 RViz 中的完整显示效果</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这是 URDF 模型制作的最终效果——在 RViz 中显示出完整的小车三维模型。要显示 URDF 模型，需要启动 <code>joint_state_publisher</code>（发布关节状态）和 <code>robot_state_publisher</code>（发布机器人整体状态）两个节点，并配合 launch 文件导入 URDF 描述。图中可见小车的车身（base_link）、左右轮以及各 joint 的连接关系，所有 link 已经设置了正确的相对位置、形状和颜色。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>附录：三维空间刚体运动</h3>
+  <ul>
+    <li><strong>旋转矩阵：</strong>9 个量描述 3 自由度旋转，具有冗余性。Pw = R·Pc + t</li>
+    <li><strong>欧拉角：</strong>3 个量 (Roll-Pitch-Yaw)，但存在<strong>万向锁</strong>问题（pitch=90° 时丢失自由度）</li>
+    <li><strong>四元数：</strong>ROS 中使用的旋转描述方式！q = w + xi + yj + zk，无万向锁问题</li>
+  </ul>
+  <div class="warn-box">⚠️ <strong>欧拉角 → 万向锁：</strong>当 pitch = 90°，第一次和第三次旋转等价，丢失一个表示维度。因此 ROS 使用四元数。</div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page56_img1.jpeg" alt="万向锁现象">
+  <div class="img-caption">图8-5（附录）：万向锁 (Gimbal Lock) 现象示意图 — 欧拉角的致命缺陷</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>欧拉角使用 Roll（绕X轴翻滚）、Pitch（绕Y轴俯仰）、Yaw（绕Z轴航偏）三个角度描述旋转，直观易懂。但存在<strong>万向锁问题</strong>：当 Pitch = 90° 时，第一次旋转（Roll）和第三次旋转（Yaw）的转轴重合，导致丢失一个自由度（原本3自由度变成2自由度）。这就像图中两个环重叠在一起，无论怎么转都只能产生两个方向的旋转。因此 <strong>ROS 统一使用四元数 (Quaternion)</strong> 来描述旋转——四元数由 w + xi + yj + zk 组成，无万向锁问题。
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ==================== Chapter 9 ==================== -->
+<div class="section chapter" id="ch9" style="display:none">
+<div class="section-header">
+  <h2>第九章 SLAM 建图</h2>
+  <div class="eng">Simultaneous Localization and Mapping</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>9.1 SLAM 简介 <span class="badge">核心概念</span></h3>
+  <ul>
+    <li><strong>SLAM = 同步定位与建图</strong>（Simultaneous Localization and Mapping）</li>
+    <li>机器人在未知环境中逐步建立地图，同时确定自身位置</li>
+    <li>ROS 中地图是<strong>灰度图像</strong>（通常 .pgm 格式）</li>
+    <li>黑色 = 障碍物，白色 = 可行区域，灰色 = 未探索</li>
+    <li>地图 Topic：<code>/map</code>，类型：<code>nav_msgs/OccupancyGrid</code></li>
+  </ul>
+  <div class="highlight-box">💡 <strong>锁存 (Latched)：</strong>地图采用锁存方式发布 — 无更新时维持上次内容，新订阅者自动收到最后发布的地图。减少通信带宽占用。</div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page59_img0.jpeg" alt="ROS地图">
+  <div class="img-caption">图9-1：ROS 中的地图 — 灰度图像（pgm 格式），黑色=障碍物，白色=可行区域，灰色=未探索</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>ROS 中的地图本质上是一张灰度图像（通常为 pgm 格式）。<strong>黑色像素</strong>表示障碍物（墙体、家具等），<strong>白色像素</strong>表示可通行区域，<strong>灰色像素</strong>表示尚未探索的未知区域。地图以 Topic <code>/map</code> 的形式维护，消息类型为 <code>nav_msgs/OccupancyGrid</code>。地图采用<strong>锁存 (Latched)</strong> 方式发布——没有更新时维持上次内容不变，新订阅者自动收到最后发布的地图，减少带宽占用。SLAM 建图过程就像拼图一样，在 RViz 中可以看到地图被逐步建立。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>9.2 Gmapping SLAM <span class="badge">最重要</span></h3>
+  <ul>
+    <li><strong>基于粒子滤波 (RBPF)</strong>，最可靠和成熟的激光 SLAM 算法</li>
+    <li>位于 slam_gmapping metapackage 中</li>
+    <li><strong>输入：</strong>/tf（base_frame↔laser_frame 和 base_frame↔odom_frame）+ /scan（激光雷达数据）</li>
+    <li><strong>输出：</strong>/tf（map_frame↔odom_frame 变换 = 定位）、/map（地图）、/map_metadata</li>
+    <li>提供服务：/dynamic_map（nav_msgs/GetMap 类型）</li>
+  </ul>
+  <div class="warn-box">
+    ⚠️ <strong>里程计误差修正关键理解：</strong>Gmapping 不修正 odom_frame↔base_frame 的 tf！而是把误差补偿在 map_frame↔odom_frame 之间的 tf 上。里程计数据是多少就显示多少。
+  </div>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page61_img0.jpeg" alt="Gmapping计算图">
+  <div class="img-caption">图9-2：Gmapping SLAM 计算图 — slam_gmapping 节点的输入输出关系</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这是 Gmapping 算法的计算图（消息流向图）。中心的 <code>slam_gmapping</code> 节点负责整个 SLAM 工作。<strong>输入：</strong>① <code>/tf</code> — 必须包含 base_frame↔laser_frame（底盘与激光雷达的变换）和 base_frame↔odom_frame（底盘与里程计原点的变换）；② <code>/scan</code> — 激光雷达数据 (sensor_msgs/LaserScan)。<strong>输出：</strong>① <code>/tf</code> — 输出 map_frame↔odom_frame 之间的变换（这就是<strong>定位修正</strong>——把里程计误差补偿在地图和里程计原点之间）；② <code>/map</code> — 建立的地图；③ <code>/map_metadata</code> — 地图元信息。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>9.3 Karto SLAM</h3>
+  <ul>
+    <li>与 Gmapping 工作方式非常类似</li>
+    <li>输入同样需要 /tf 和 /scan</li>
+    <li>输出比 Gmapping 少了一个位姿估计分散程度</li>
+    <li>同样提供 /dynamic_map 服务</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>9.4 Hector SLAM</h3>
+  <ul>
+    <li><strong>只需要激光雷达数据，不需要里程计！</strong></li>
+    <li>适合手持式激光雷达、没有里程计的机器人</li>
+    <li>扫描频率有一定要求</li>
+    <li>效果不如 Gmapping 和 Karto（仅用激光雷达信息）</li>
+    <li>额外订阅 /syscommand Topic（接收 "reset" 消息时初始化）</li>
+    <li>额外输出 /poseupdate 和 /slam_out_pose（位姿估计）</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>9.5 三种 SLAM 算法对比</h3>
+  <table class="compare-table">
+    <tr><th>算法</th><th>传感器需求</th><th>特点</th><th>适用场景</th></tr>
+    <tr><td>Gmapping</td><td>激光雷达 + 里程计</td><td>粒子滤波 RBPF，最成熟可靠</td><td>大多数轮式机器人</td></tr>
+    <tr><td>Karto</td><td>激光雷达 + 里程计</td><td>与 Gmapping 类似</td><td>大多数轮式机器人</td></tr>
+    <tr><td>Hector</td><td>仅激光雷达</td><td>无需里程计，精度较低</td><td>手持设备、无里程计机器人</td></tr>
+  </table>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page64_img0.jpeg" alt="Karto SLAM">
+  <div class="img-caption">图9-3：Karto SLAM 计算图 — 与 Gmapping 非常类似但输出略有不同</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>Karto SLAM 在工作方式上与 Gmapping 高度相似。输入同样是 <code>/tf</code>（需连通 odom_frame↔base_frame 和 laser_frame）和 <code>/scan</code>。<strong>唯一的区别在输出：</strong>slam_karto 的输出比 slam_gmapping 少了一个位姿估计分散程度 (<code>/slam_gmapping/entropy</code>)。两者都提供 <code>/dynamic_map</code> 服务（类型为 nav_msgs/GetMap）用于获取当前地图。
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ==================== Chapter 10 ==================== -->
+<div class="section chapter" id="ch10" style="display:none">
+<div class="section-header">
+  <h2>第十章 Navigation 导航</h2>
+  <div class="eng">ROS Navigation Stack — Path Planning</div>
+</div>
+
+<div class="knowledge-grid">
+
+<div class="knowledge-card">
+  <h3>10.1 Navigation Stack 概览 <span class="badge">核心</span></h3>
+  <ul>
+    <li><strong>Navigation Stack 是一个 metapackage</strong>，包含路径规划、定位、地图、异常恢复等 package</li>
+    <li><strong>主要作用：</strong>路径规划 — 输入传感器数据，输出速度</li>
+  </ul>
+</div>
+
+<div class="knowledge-card">
+  <h3>10.2 Navigation Stack 核心包</h3>
+  <table class="compare-table">
+    <tr><th>包名</th><th>功能</th></tr>
+    <tr><td><strong>move_base</strong></td><td>核心路径规划节点</td></tr>
+    <tr><td>amcl</td><td>定位</td></tr>
+    <tr><td>map_server</td><td>提供地图</td></tr>
+    <tr><td>navfn / global_planner</td><td>全局规划（Dijkstra / A*）</td></tr>
+    <tr><td>base_local_planner / dwa_local_planner</td><td>局部规划（Trajectory Rollout / DWA）</td></tr>
+    <tr><td>costmap_2d</td><td>二维代价地图</td></tr>
+    <tr><td>clear_costmap_recovery</td><td>清除代价地图恢复</td></tr>
+    <tr><td>rotate_recovery</td><td>旋转恢复行为</td></tr>
+    <tr><td>move_slow_and_clear</td><td>缓慢移动恢复</td></tr>
+    <tr><td>nav_core</td><td>路径规划接口类（基类）</td></tr>
+  </table>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page69_img0.jpeg" alt="Navigation工作框架">
+  <div class="img-caption">图10-1：Navigation 工作框架 — move_base 是整个导航系统的核心节点</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>这张图完整展示了 ROS Navigation Stack 的架构。<strong>核心：</strong>位于正中心的 <code>move_base</code> 节点，它是一个强大的路径规划器，包含了多个插件（白色圆圈）：global_planner（全局规划）、local_planner（局部规划）、global_costmap（全局代价地图）、local_costmap（局部代价地图）、recovery_behaviors（恢复行为）。<strong>必须提供的输入 Topic：</strong>① <code>/tf</code>（完整 tf 树）② <code>/odom</code>（里程计）③ <code>/scan</code> 或 <code>/pointcloud</code>（传感器）④ <code>/map</code>（地图）。<strong>输出：</strong><code>/cmd_vel</code>（速度指令，geometry_msgs/Twist 类型）。只需启动 move_base 一个 node 并给它数据，就能完成自主导航。
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>10.3 move_base 核心节点 <span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>Navigation 中的核心节点</strong></li>
+    <li>包含多种插件：global_planner、local_planner、global_costmap、local_costmap、recovery_behaviors</li>
+  </ul>
+  <div class="highlight-box">
+    <strong>🟢 move_base 输入：</strong><br>
+    ① /tf — 完整的 tf 树<br>
+    ② /odom — 里程计信息<br>
+    ③ /scan 或 /pointcloud — 传感器数据<br>
+    ④ /map — 地图（必须提供）<br>
+    ⑤ move_base_simple/goal — 目标点<br><br>
+    <strong>🔵 move_base 输出：</strong><br>
+    ⑥ /cmd_vel — 规划的速度指令 (geometry_msgs/Twist)
+  </div>
+</div>
+
+<div class="knowledge-card">
+  <h3>10.4 全局规划器 & 局部规划器</h3>
+  <table class="compare-table">
+    <tr><th>类型</th><th>插件</th><th>算法</th></tr>
+    <tr><td>全局规划</td><td>navfn</td><td>Dijkstra / A*</td></tr>
+    <tr><td>全局规划</td><td>global_planner</td><td>Dijkstra / A*（navfn 改进版）</td></tr>
+    <tr><td>全局规划</td><td>parrot_planner</td><td>较简单算法</td></tr>
+    <tr><td>局部规划</td><td>base_local_planner</td><td>Trajectory Rollout / DWA</td></tr>
+    <tr><td>局部规划</td><td>dwa_local_planner</td><td>DWA（改进版）</td></tr>
+  </table>
+</div>
+
+<div class="knowledge-card">
+  <h3>10.5 Costmap 代价地图 <span class="badge">重点</span></h3>
+  <ul>
+    <li><strong>两张代价地图：</strong>local_costmap（局部）+ global_costmap（全局）</li>
+    <li>在原始 /map 之上叠加多层辅助信息</li>
+    <li><strong>Layer 层次：</strong></li>
+  </ul>
+  <table class="compare-table">
+    <tr><th>Layer</th><th>作用</th></tr>
+    <tr><td>Static Map Layer</td><td>SLAM 建立的静态地图</td></tr>
+    <tr><td>Obstacle Map Layer</td><td>动态记录传感器感知的障碍物</td></tr>
+    <tr><td>Inflation Layer</td><td>膨胀层，避免机器人外壳撞到障碍物</td></tr>
+    <tr><td>Other Layers</td><td>自定义插件（Social Costmap Layer、Range Sensor Layer 等）</td></tr>
+  </table>
+</div>
+
+<div class="knowledge-card">
+  <h3>10.6 Recovery Behavior 恢复行为</h3>
+  <ul>
+    <li>clear_costmap_recovery — 清除代价地图</li>
+    <li>rotate_recovery — 旋转恢复</li>
+    <li>move_slow_and_clear — 缓慢移动恢复</li>
+    <li>三种插件都继承自 nav_core 接口</li>
+  </ul>
+</div>
+
+<div class="img-container">
+  <img src="ros_images/page71_img0.jpeg" alt="move_base插件结构">
+  <div class="img-caption">图10-2：move_base 插件结构 — 三种插件类型及其候选实现</div>
+  <div class="info-box" style="text-align:left;margin-top:10px">
+    <strong>📖 图片说明：</strong>move_base 要运行必须指定三种插件（否则使用默认值）：<strong>① base_local_planner</strong>（局部规划器）— 可选 Trajectory Rollout/DWA (base_local_planner) 或改进版 DWA (dwa_local_planner)；<strong>② base_global_planner</strong>（全局规划器）— 可选 navfn (Dijkstra/A*) 或改进版 global_planner；<strong>③ recovery_behavior</strong>（恢复行为）— 可选 clear_costmap_recovery（清除代价地图）、rotate_recovery（旋转恢复）、move_slow_and_clear（缓慢移动恢复）。所有插件都继承自 <code>nav_core</code> 包中定义的接口类，以动态链接库（.so）的形式在运行时加载。
+  </div>
+</div>
+
+</div>
+</div>
+
+</div><!-- /#content -->
+</div><!-- /.main-wrap -->
+
+
+<script>
+// =============================================
+// Quiz Data
+// =============================================
+const quizData = {
+  quiz1: [
+    { type:'single', stem:'机器人操作系统的全称是？', options:['React Operating System','Router Operating System','Request of Service','Robot Operating System'], answer:[3], explain:'ROS 的全称是 Robot Operating System' },
+    { type:'single', stem:'ROS Kinetic 最佳适配的 Linux 版本是？', options:['CentOS 7','Ubuntu 14.04','Ubuntu 16.04','Ubuntu 18.04'], answer:[2], explain:'官方推荐 ROS Kinetic 最佳适配 Ubuntu 16.04' },
+    { type:'single', stem:'下列哪个不是 ROS 的特点？', options:['开源','分布式架构','强实时性','模块化'], answer:[2], explain:'ROS 系统不具有强实时性，它不是一个 RTOS' },
+    { type:'single', stem:'ROS 官方二进制包可以通过以下哪个命令安装（假定 Kinetic 版本）？', options:['sudo apt-get install ROS_kinetic_packagename','sudo apt-get install ROS-Kinetic-packagename','sudo apt-get install ros_kinetic_packagename','sudo apt-get install ros-kinetic-packagename'], answer:[3], explain:'格式为 ros-kinetic-packagename' },
+    { type:'single', stem:'ROS 最早诞生于哪所学校的实验室？', options:['麻省理工学院 (MIT)','斯坦福大学 (Stanford)','加州大学伯克利分校 (UC Berkeley)','卡内基梅隆大学 (CMU)'], answer:[1], explain:'ROS 起源于斯坦福大学人工智能实验室' },
+    { type:'multi', stem:'下列哪些是 ROS 的发行版本？', options:['Indigo','Jade','Xenial','Kinetic'], answer:[0,1,3], explain:'Xenial 是 Ubuntu 系统版本号，不是 ROS 版本。ROS 与 Android 版本号都按字母表顺序命名' },
+    { type:'multi', stem:'查看 robots.ros.org 页面的机器人，下列哪些支持 ROS？', options:['Pioneer 3-AT','XBot','TurtleBot3','PR2'], answer:[0,1,2,3], explain:'以上机器人全部支持 ROS' },
+    { type:'single', stem:'在 PC 上安装 Ubuntu 16.04 和 ROS Kinetic，你完成了吗？', options:['已完成','未完成'], answer:[0], explain:'完成了才能拿到分数 😊' }
+  ],
+  quiz2: [
+    { type:'single', stem:'目前 ROS 主流的编译系统是？', options:['Ament','rosbuild','CMake','Catkin'], answer:[3], explain:'Ament 是 ROS2 的编译系统，rosbuild 太老了' },
+    { type:'single', stem:'如果你要 clone 一个 ROS 的软件包，下列哪个路径是合理的存放位置？', options:['~/catkin_ws/devel','~/catkin_ws/','~/my_ws/src','~/catkin_ws/build'], answer:[2], explain:'通常 ROS 的 package 都放在工作空间下的 src 目录里' },
+    { type:'single', stem:'默认情况下，catkin_make 生成的 ROS 可执行文件放在哪个路径？', options:['catkin_ws/src','catkin_ws/','catkin_ws/devel','catkin_ws/build'], answer:[2], explain:'可执行文件默认生成在 devel/ 路径' },
+    { type:'single', stem:'CMake 文件编写规则中，用于将库文件链接到目标文件的是哪条指令？', options:['add_executable()','add_link()','add_library()','target_link_libraries()'], answer:[3], explain:'target_link_libraries() 用于将库文件链接到目标文件' },
+    { type:'single', stem:'CMake 的指令中，引入头文件的搜索路径是哪个指令？', options:['cmake_include_directory()','cmake_include_path()','include_directories()','include_directory()'], answer:[2], explain:'include_directories() 用于引入头文件的搜索路径' },
+    { type:'multi', stem:'一个 ROS 的 package 要正常的编译，必须要有哪些文件？', options:['*.cpp','CMakeLists.txt','*.h','package.xml'], answer:[1,3], explain:'CMakeLists.txt 和 package.xml 是必须的' },
+    { type:'multi', stem:'下列哪些是 CMake 没有而 Catkin 有（Catkin 扩展了）的指令？', options:['add_action_files()','add_message_files()','add_service_files()','generate_messages()'], answer:[0,1,2,3], explain:'都是 Catkin 对 CMake 的扩展指令' },
+    { type:'judge', stem:'roscd、rosls 指令后面都可以直接加包名，作用分别是跳转到软件包路径下，列出软件包中的内容。', options:['正确','错误'], answer:[0], explain:'是正确的' }
+  ],
+  quiz3: [
+    { type:'single', stem:'启动 ROS Master 的命令是：', options:['roscore','rosmaster','rosMaster','roslaunch'], answer:[0], explain:'启动 ROS Master 使用 roscore 命令' },
+    { type:'single', stem:'关于 ROS Node 的描述，哪一项是错误的？', options:['Node 启动时会向 Master 注册','Node 可以先于 ROS Master 启动','Node 是 ROS 可执行文件运行的实例','Node 是 ROS 的进程'], answer:[1], explain:'Node 不能先于 Master 启动！必须先启动 Master' },
+    { type:'single', stem:'关于 .launch 文件的描述，以下哪一项是错的？', options:['可以加载配置好的参数','通过 roslaunch 命令来启动','在 roslaunch 前必须先 roscore','可以一次性启动多个节点'], answer:[2], explain:'roslaunch 会自动检测并启动 roscore，不需要手动先启动' },
+    { type:'single', stem:'想要查看 `/odom` 话题发布的内容，应该用哪个命令？', options:['rostopic echo /odom','rostopic content /odom','rostopic info /odom','rostopic print /odom'], answer:[0], explain:'rostopic echo /topic_name 查看 topic 发布的内容' },
+    { type:'single', stem:'下列哪个不是 std_msgs 下的消息？', options:['std_msgs/LaserScan','std_msgs/Header','std_msgs/Time','std_msgs/Float32'], answer:[0], explain:'LaserScan 在 sensor_msgs 功能包下' },
+    { type:'multi', stem:'关于 Topic 通信的描述，正确的选项有：', options:['Topic 是一种异步通信机制','一个 Topic 至少要有一个发布者和一个接收者','查看当前活跃的 Topic 可以通过 rostopic list 命令','一个 Node 最多只能发布一个 Topic'], answer:[0,2], explain:'B错：一个Topic 可以被发布而无人接收。D错：一个Node 可以发布多个Topic' },
+    { type:'judge', stem:'同一个 Topic 上可以有多个发布者。', options:['正确','错误'], answer:[0], explain:'一个 Topic 上可以有多个发布者，例如 /tf, /rosout' }
+  ],
+  quiz4: [
+    { type:'single', stem:'下列有关 Service 与 Topic 通信区别的描述，说法错误的是：', options:['Topic是异步通信，Service是同步通信','多个Server可以同时提供同一个Service','Topic通信是单向的，Service是双向的','Topic适用于传感器的消息发布，Service适用于偶尔调用的任务'], answer:[1], explain:'Service 是不能重名的，一个 service 只能由一个 server 提供' },
+    { type:'single', stem:'已知一个 service 叫做 "/GetMap"，查看该 service 的类型可以用哪条指令？', options:['rosservice echo /GetMap','rosservice type /GetMap','rossrv type /GetMap','rosservice list /GetMap'], answer:[1], explain:'rosservice type 查看 service 类型' },
+    { type:'single', stem:'已知 /GetMap 的类型是 nav_msgs/GetMap，要查看该类型的具体格式用哪条指令？', options:['rossrv show /GetMap','rossrv show nav_msgs/GetMap','rosservice show nav_msgs/GetMap','rosservice list nav_msgs/GetMap'], answer:[1], explain:'rossrv show type_name 查看 srv 具体格式' },
+    { type:'single', stem:'在 parameter server 上添加 param 的方式不包括：', options:['通过 rosnode 命令添加 param','通过 rosparam 命令添加 param','在 launch 中添加 param','通过 ROS 的 API 来添加 param'], answer:[0], explain:'添加参数应该用 rosparam set 命令，不能用 rosnode' },
+    { type:'single', stem:'关于 Action 的描述错误的是：', options:['Action 通信的双方也是 Client 和 Server','Action 的 Client 可以发送目标 goal，也可以请求取消 cancel','action 文件与 .srv 文件写法一致','Action 通常用在长时间的任务中'], answer:[2], explain:'.action 为三段式（Goal/Result/Feedback），.srv 为两段式（Request/Reply）' },
+    { type:'multi', stem:'关于 ROS 通信方式的描述正确的是：', options:['设计路径规划功能，输入目标点和起始点，输出路径，适合用 Topic','传感器消息发布一般都采用 Topic 形式发布','Action 更适合用在执行时间长、并且需要知道状态和结果的场景','机械臂关节逆解适合用 Service 通信'], answer:[1,2,3], explain:'A错：Topic 是单向的，路径规划应该用 Service 或 Action。D对：逆解计算 request 为末端坐标，reply 为关节角度' }
+  ],
+  quiz5: [
+    { type:'single', stem:'Gazebo 是一款什么工具？', options:['调试','可视化','仿真','命令行'], answer:[2], explain:'Gazebo 是最常用的 ROS 仿真工具' },
+    { type:'single', stem:'rqt_graph 可以用来查看计算图，以下说法错误的是：', options:['计算图反映了节点之间消息的流向','rqt_graph 中的椭圆代表节点','rqt_graph 可以看到所有的 topic、service 和 action','计算图反映了所有运行的节点'], answer:[2], explain:'rqt_graph 主要显示 topic 和节点，不直接显示 service 和 action 的所有细节' },
+    { type:'single', stem:'rosbag 的描述错误的是：', options:['rosbag 可以记录和回放 service','rosbag 可以记录和回放 topic','rosbag 记录的结果为 .bag 文件','rosbag 可以指定记录某一个或多个 topic'], answer:[0], explain:'rosbag 不能记录和回放 service，只能记录和回放 topic' },
+    { type:'multi', stem:'RViz 可以图形化显示哪些类型的数据？', options:['激光 LaserScan','点云 PointCloud','机器人模型 RobotModel','轨迹 Path'], answer:[0,1,2,3], explain:'以上类型数据 RViz 均可以图形化显示' }
+  ]
+};
+
+// =============================================
+// Render Quizzes
+// =============================================
+function renderQuiz(quizId) {
+  const container = document.getElementById(quizId + 'Content');
+  const questions = quizData[quizId];
+  if (!questions || !container) return;
+
+  container.innerHTML = questions.map((q, qi) => {
+    const typeClass = q.type === 'single' ? 'single' : (q.type === 'multi' ? 'multi' : 'judge');
+    const typeLabel = q.type === 'single' ? '单选' : (q.type === 'multi' ? '多选' : '判断');
+    const inputType = q.type === 'multi' ? 'checkbox' : 'radio';
+    const qScore = q.type === 'multi' ? '5分' : '2分';
+
+    return `
+    <div class="quiz-item" id="${quizId}_q${qi}">
+      <div class="q-header">
+        <span class="q-num">第 ${qi+1} 题</span>
+        <span class="q-type ${typeClass}">${typeLabel} · ${qScore}</span>
+      </div>
+      <div class="q-stem">${qi+1}. ${q.stem}</div>
+      <div class="options">
+        ${q.options.map((opt, oi) => `
+          <label class="option" id="${quizId}_q${qi}_o${oi}" onclick="selectOption('${quizId}',${qi},${oi},'${inputType}',event)">
+            <span class="letter">${String.fromCharCode(65+oi)}</span>
+            <span>${opt}</span>
+            <input type="${inputType}" name="${quizId}_q${qi}" value="${oi}" style="display:none">
+          </label>
+        `).join('')}
+      </div>
+      <div class="explanation">💡 <strong>解析：</strong>${q.explain}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectOption(quizId, qi, oi, inputType, event) {
+  const qDiv = document.getElementById(`${quizId}_q${qi}`);
+  if (qDiv.classList.contains('answered')) return; // prevent re-select after submit
+
+  if (inputType === 'radio') {
+    // Single select — deselect all, select this
+    const options = qDiv.querySelectorAll('.option');
+    options.forEach(o => o.classList.remove('selected'));
+    const target = document.getElementById(`${quizId}_q${qi}_o${oi}`);
+    target.classList.add('selected');
+    target.querySelector('input').checked = true;
+  } else {
+    // Multi select — toggle
+    const target = document.getElementById(`${quizId}_q${qi}_o${oi}`);
+    target.classList.toggle('selected');
+    const cb = target.querySelector('input');
+    cb.checked = !cb.checked;
+  }
+}
+
+function checkQuiz(quizId) {
+  const questions = quizData[quizId];
+  let correct = 0; let total = questions.length;
+  let answered = 0;
+
+  questions.forEach((q, qi) => {
+    const qDiv = document.getElementById(`${quizId}_q${qi}`);
+    const options = qDiv.querySelectorAll('.option');
+    let userAnswer = [];
+    options.forEach((opt, oi) => {
+      if (opt.classList.contains('selected')) userAnswer.push(oi);
+    });
+
+    if (userAnswer.length === 0) return; // skip unanswered
+
+    answered++;
+    qDiv.classList.add('answered');
+    const isCorrect = arraysEqual(userAnswer.sort(), [...q.answer].sort());
+
+    options.forEach((opt, oi) => {
+      opt.style.pointerEvents = 'none';
+      if (q.answer.includes(oi)) opt.classList.add('correct-ans');
+      if (userAnswer.includes(oi) && !q.answer.includes(oi)) opt.classList.add('wrong-ans');
+    });
+
+    if (isCorrect) {
+      correct++;
+      qDiv.classList.add('correct');
+    } else {
+      qDiv.classList.add('wrong');
+    }
+    qDiv.classList.add('show-explanation');
+  });
+
+  // Update progress bar
+  const progress = document.getElementById('progress' + quizId.slice(-1));
+  if (progress && answered > 0) {
+    progress.style.width = (answered / total * 100) + '%';
+  }
+
+  // Show score
+  const scoreEl = document.getElementById('score' + quizId.slice(-1));
+  if (scoreEl && answered > 0) {
+    const pct = Math.round(correct / total * 100);
+    scoreEl.innerHTML = `得分: ${correct}/${total} (${pct}%)`;
+    scoreEl.style.display = 'block';
+  }
+}
+
+function resetQuiz(quizId) {
+  const qDivs = document.querySelectorAll(`#${quizId} .quiz-item`);
+  qDivs.forEach(div => {
+    div.classList.remove('answered', 'correct', 'wrong', 'show-explanation');
+    const options = div.querySelectorAll('.option');
+    options.forEach(opt => {
+      opt.classList.remove('selected', 'correct-ans', 'wrong-ans');
+      opt.style.pointerEvents = '';
+      const input = opt.querySelector('input');
+      if (input) input.checked = false;
+    });
+  });
+  const progress = document.getElementById('progress' + quizId.slice(-1));
+  if (progress) progress.style.width = '0%';
+  const scoreEl = document.getElementById('score' + quizId.slice(-1));
+  if (scoreEl) { scoreEl.style.display = 'none'; scoreEl.innerHTML = ''; }
+}
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+// =============================================
+// Chapter Switching
+// =============================================
+function switchChapter(chId, linkEl) {
+  // Hide all chapters
+  document.querySelectorAll('.chapter').forEach(c => c.style.display = 'none');
+  // Show target
+  const target = document.getElementById(chId);
+  if (target) { target.style.display = 'block'; target.scrollIntoView({behavior:'smooth'}); }
+
+  // Update active link
+  document.querySelectorAll('#sidebarNav a').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+  else {
+    const matchLink = document.querySelector(`#sidebarNav a[href="#${chId}"]`);
+    if (matchLink) matchLink.classList.add('active');
+  }
+
+  // Update breadcrumb
+  const titles = {ch1:'ROS简介',ch2:'ROS文件系统',ch3:'通信架构（一）',ch4:'通信架构（二）',ch5:'常用工具',ch6:'roscpp客户端库',ch7:'rospy客户端库',ch8:'TF与URDF',ch9:'SLAM建图',ch10:'Navigation导航'};
+  document.getElementById('currentChapter').textContent = titles[chId] || chId;
+
+  // Save state
+  localStorage.setItem('ros-review-chapter', chId);
+}
+
+// =============================================
+// Search
+// =============================================
+let searchMatches = [];
+let currentMatchIdx = -1;
+
+function searchContent() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const nav = document.getElementById('searchNav');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const matchInfo = document.getElementById('matchInfo');
+
+  // Clear previous highlights
+  document.querySelectorAll('.highlight-match').forEach(el => {
+    const parent = el.parentNode;
+    parent.replaceChild(document.createTextNode(el.textContent), el);
+  });
+
+  if (!query) {
+    // Reset
+    document.querySelectorAll('.chapter').forEach(c => { c.style.display = 'none'; });
+    document.querySelectorAll('.knowledge-card').forEach(c => {
+      c.style.opacity = '1'; c.style.borderColor = 'var(--border)';
+      c.style.boxShadow = ''; c.classList.remove('current-match-card');
+    });
+    nav.classList.remove('visible');
+    searchMatches = []; currentMatchIdx = -1;
+    // Restore last chapter
+    const saved = localStorage.getItem('ros-review-chapter') || 'ch1';
+    switchChapter(saved);
+    return;
+  }
+
+  // Show all chapters
+  document.querySelectorAll('.chapter').forEach(c => { c.style.display = 'block'; });
+
+  // Find all matching knowledge cards
+  searchMatches = [];
+  currentMatchIdx = -1;
+  document.querySelectorAll('.knowledge-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    if (text.includes(query)) {
+      searchMatches.push(card);
+      card.style.opacity = '1';
+      card.style.borderColor = 'var(--accent)';
+      card.style.boxShadow = '0 0 0 3px rgba(0,172,193,0.2)';
+      card.classList.remove('current-match-card');
+      // Highlight text within the card
+      highlightTextInElement(card, query);
+    } else {
+      card.style.opacity = '0.35';
+      card.style.borderColor = 'var(--border)';
+      card.style.boxShadow = '';
+      card.classList.remove('current-match-card');
+    }
+  });
+
+  if (searchMatches.length > 0) {
+    nav.classList.add('visible');
+    currentMatchIdx = 0;
+    goToMatch(0);
+    updateNavButtons(prevBtn, nextBtn, matchInfo);
+  } else {
+    nav.classList.add('visible');
+    matchInfo.textContent = '无匹配结果';
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    searchMatches = []; currentMatchIdx = -1;
+  }
+}
+
+function highlightTextInElement(element, query) {
+  // Walk through text nodes and wrap matches
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(node) {
+      // Skip already highlighted spans and hidden elements
+      if (node.parentNode.classList.contains('highlight-match')) return NodeFilter.FILTER_REJECT;
+      if (node.parentNode.tagName === 'SCRIPT' || node.parentNode.tagName === 'STYLE') return NodeFilter.FILTER_REJECT;
+      if (node.parentNode.tagName === 'INPUT' || node.parentNode.tagName === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const nodesToReplace = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const text = node.textContent.toLowerCase();
+    if (text.includes(query)) {
+      nodesToReplace.push(node);
+    }
+  }
+
+  nodesToReplace.forEach(node => {
+    const text = node.textContent;
+    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    const fragment = document.createDocumentFragment();
+    let lastIdx = 0;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      fragment.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+      const span = document.createElement('span');
+      span.className = 'highlight-match';
+      span.textContent = match[0];
+      fragment.appendChild(span);
+      lastIdx = regex.lastIndex;
+    }
+    fragment.appendChild(document.createTextNode(text.slice(lastIdx)));
+    node.parentNode.replaceChild(fragment, node);
+  });
+}
+
+function goToMatch(idx) {
+  if (idx < 0 || idx >= searchMatches.length) return;
+
+  // Remove current highlight from previous
+  document.querySelectorAll('.knowledge-card.current-match-card').forEach(c => {
+    c.classList.remove('current-match-card');
+    c.style.borderColor = 'var(--accent)';
+    c.style.boxShadow = '0 0 0 3px rgba(0,172,193,0.2)';
+  });
+
+  const card = searchMatches[idx];
+  currentMatchIdx = idx;
+
+  // Highlight current
+  card.classList.add('current-match-card');
+
+  // Show the chapter containing this card
+  const chapter = card.closest('.chapter');
+  if (chapter) {
+    const chId = chapter.id;
+    switchChapter(chId);
+  }
+
+  // Scroll to the card
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  updateNavButtons(document.getElementById('prevBtn'), document.getElementById('nextBtn'), document.getElementById('matchInfo'));
+}
+
+function navigateMatch(direction) {
+  if (searchMatches.length === 0) return;
+  let newIdx = currentMatchIdx + direction;
+  if (newIdx < 0) newIdx = searchMatches.length - 1;
+  if (newIdx >= searchMatches.length) newIdx = 0;
+  goToMatch(newIdx);
+}
+
+function updateNavButtons(prevBtn, nextBtn, matchInfo) {
+  if (searchMatches.length > 0) {
+    matchInfo.textContent = `${currentMatchIdx + 1} / ${searchMatches.length}`;
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
+  } else {
+    matchInfo.textContent = '0 / 0';
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+  }
+}
+
+// =============================================
+// Initialize
+// =============================================
+function init() {
+  // Render all quizzes
+  Object.keys(quizData).forEach(id => renderQuiz(id));
+
+  // Restore last chapter
+  const saved = localStorage.getItem('ros-review-chapter');
+  const defaultCh = saved || 'ch1';
+  switchChapter(defaultCh);
+
+  // Hash-based routing
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.slice(1);
+    if (hash && document.getElementById(hash)) switchChapter(hash);
+  });
+
+  if (window.location.hash) {
+    const hash = window.location.hash.slice(1);
+    if (document.getElementById(hash)) switchChapter(hash);
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    const chMap = {'1':'ch1','2':'ch2','3':'ch3','4':'ch4','5':'ch5','6':'ch6','7':'ch7','8':'ch8','9':'ch9','0':'ch10'};
+    if (e.ctrlKey && chMap[e.key]) { e.preventDefault(); switchChapter(chMap[e.key]); }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
